@@ -22,10 +22,6 @@ class SBCU_Front
         // add carousel upsells to single product page after add to cart
         add_action('woocommerce_after_add_to_cart_button', array($this, 'add_carousel_upsells'));
 
-        // add to cart ajax
-        add_action('wp_ajax_sbcu_add_to_cart', array($this, 'sbcu_add_to_cart'));
-        add_action('wp_ajax_nopriv_sbcu_add_to_cart', array($this, 'sbcu_add_to_cart'));
-
         // add css and js
         add_action('wp_footer', array($this, 'add_css_js'), PHP_INT_MAX);
     }
@@ -93,7 +89,13 @@ class SBCU_Front
     private function render_carousel($products)
     {
 
-        global $sbcu_carousel_id;
+        global $sbcu_carousel_id, $post;
+
+        // products per slide per viewport
+        $per_slide_dt  = get_post_meta($post->ID, 'sbcu_per_slide_dt', true);
+        $per_slide_tb  = get_post_meta($post->ID, 'sbcu_per_slide_tb', true);
+        $per_slide_mb  = get_post_meta($post->ID, 'sbcu_per_slide_mb', true);
+        $per_slide_smb = get_post_meta($post->ID, 'sbcu_per_slide_smb', true);
 
         // carousel id
         $sbcu_carousel_id = 'sbcu-carousel-' . uniqid();
@@ -106,7 +108,7 @@ class SBCU_Front
 
         <h5 id="sbcu-title" class="title mb-2 mt-3"><?php _e('You Might Be Interested In:', SBWC_CU_TDOM); ?></h5>
 
-        <div id="<?php echo $sbcu_carousel_id; ?>" class="sbcu-carousel owl-carousel owl-theme">
+        <div id="<?php echo $sbcu_carousel_id; ?>" class="sbcu-carousel owl-carousel owl-theme  dt-<?= $per_slide_dt ?> tb-<?= $per_slide_tb ?> mb-<?= $per_slide_mb ?> smb-<?= $per_slide_smb ?>">
 
             <?php
             foreach ($products as $product) {
@@ -126,23 +128,7 @@ class SBCU_Front
                 // product url
                 $product_url = $product->get_permalink();
 
-                // if is variable product render 'Choose Options' button which will trigger a model showing options on click, else render 'Add to Cart' button
-                if ($product->is_type('variable')) {
-
-                    // check if variation has linked variations (products linked by variation plugin)
-                    $is_linked_variation = $this->is_variation_part_of_linked_products($product_id);
-
-                    if ($is_linked_variation) :
-                        // link to product page
-                        $product_add_to_cart_button = '<a target="_blank" href="' . $product_url . '" title="' . __('View product', SBWC_CU_TDOM) . '" class="button w-100">' . __('Choose Options', SBWC_CU_TDOM) . '</a>';
-                    else :
-                        // choose options button
-                        $product_add_to_cart_button = '<button title="' . __('View options', SBWC_CU_TDOM) . '" class="button sbcu-variation-modal-trigger w-100" data-product_id="' . $product_id . '">' . __('Choose Options', SBWC_CU_TDOM) . '</button>';
-                    endif;
-                } else {
-                    // add to cart button
-                    $product_add_to_cart_button = '<button title="' . __('Add to cart', SBWC_CU_TDOM) . '" data-product_id="' . $product_id . '" class="button sbcu-carousel-item-add-to-cart-button sbcu-add-to-cart w-100">' . __('Add to Cart', SBWC_CU_TDOM) . '</button>';
-                }
+                $product_add_to_cart_button = '<button class="btn-product btn-quickview w-100 sbcu-quickview" data-product="' . $product_id . '" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</button>';
 
                 // product html
             ?>
@@ -322,41 +308,6 @@ class SBCU_Front
     }
 
     /**
-     * Private function to check of variation is part of products linked by variations
-     * 
-     * @param int $variation_id - variation id
-     * @return bool - true if variation is part of products linked by variations, else false
-     * @since 1.0.0
-     */
-    private function is_variation_part_of_linked_products($variation_id)
-    {
-
-        // get products linked by variations option
-        $products_linked_by_variations = get_option('plgfymao_all_rulesplgfyplv');
-
-        // debug
-        // return $products_linked_by_variations;
-
-        // holds all variations
-        $all_variations = [];
-
-        // loop through products linked by variations
-        foreach ($products_linked_by_variations as $index => $linked_data) :
-
-            // get applied on ids
-            $applied_on_ids = $linked_data['apllied_on_ids'];
-
-            // loop through applied on ids
-            foreach ($applied_on_ids as $aid) :
-                $all_variations[] = $aid;
-            endforeach;
-
-        endforeach;
-
-        return in_array($variation_id, $all_variations);
-    }
-
-    /**
      * Front CSS
      * 
      * @since 1.0.0
@@ -369,47 +320,9 @@ class SBCU_Front
         // css
     ?>
         <style>
-            /* modal stuff */
-            .sbcu-variation-modal-overlay {
-                width: 100vw;
-                height: 100vh;
-                position: fixed;
-                z-index: 10000;
-                background: #000000d6;
-                top: 0;
-                left: 0;
-            }
-
-            .sbcu-variation-modal {
-                background: white;
-                padding: 20px;
-                border-radius: 5px;
-                left: -22vw;
-                top: -23vh;
-                z-index: 100000;
-                width: 42vw;
-            }
-
-            span.sbcu-close-modal.p-absolute {
-                right: -34px;
-                border: 1px solid #666;
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                text-align: center;
-                background: #efefef;
-                color: #666;
-                cursor: pointer;
-                top: -37px;
-                line-height: 1.8;
-            }
-
-            .sbcu-variation-modal-variation {
-                flex: 0 0 50%;
-            }
-
-            .sbcu-variation-modal-variations.d-flex.flex-wrap {
-                align-items: flex-end;
+            .sbcu-full-width,
+            .sbcu-full-width:hover {
+                width: 98% !important;
             }
 
             /* carousel stuff */
@@ -458,24 +371,53 @@ class SBCU_Front
                 margin-right: 5px;
             }
 
+            .dt-3 .owl-next {
+                top: 116px !important;
+                right: 25px !important;
+            }
+
+            .dt-3 .owl-prev {
+                top: 116px !important;
+                left: 25px !important;
+            }
+
+            .dt-3 .sbcu-carousel-item-title.has-small-font-size.text-center.pb-3.font-weight-semi-bold {
+                font-size: 0.98em !important;
+            }
+
             /* responsiveness */
 
             /* 1440px */
             @media (max-width: 1440px) {
 
-                .owl-theme .owl-nav .owl-next,
-                .owl-theme .owl-nav .owl-prev {
-                    top: 154px;
+                .dt-3 .owl-next,
+                .dt-3 .owl-prev {
+                    top: 103px !important;
                 }
 
                 .sbcu-variation-modal {
                     left: -28vw;
                     width: 55vw;
                 }
+
+                .dt-3 .sbcu-carousel-item-title.has-small-font-size.text-center.pb-3.font-weight-semi-bold {
+                    font-size: 0.95em !important;
+                }
+
+                .dt-3 .sbcu-carousel-item-add-to-cart>a,
+                .dt-3 button.button.sbcu-variation-modal-trigger.w-100 {
+                    font-size: 0.9em;
+                }
             }
 
             /* 1366px */
-            @media (max-width: 1366px) {}
+            @media (max-width: 1366px) {
+
+                .tb-2 .owl-next,
+                .tb-2 .owl-prev {
+                    top: 146px !important;
+                }
+            }
 
             /* 1280px */
             @media (max-width: 1280px) {
@@ -494,9 +436,9 @@ class SBCU_Front
             /* 1024px */
             @media (max-width: 1024px) {
 
-                .owl-theme .owl-nav .owl-next,
-                .owl-theme .owl-nav .owl-prev {
-                    top: 110px;
+                .tb-2 .owl-next,
+                .tb-2 .owl-prev {
+                    top: 111px !important;
                 }
 
                 .sbcu-carousel-item-title.has-small-font-size.text-center.pb-3.font-weight-semi-bold>a,
@@ -518,6 +460,11 @@ class SBCU_Front
                 .owl-theme .owl-nav .owl-next,
                 .owl-theme .owl-nav .owl-prev {
                     top: 176px;
+                }
+
+                .tb-2 .owl-next,
+                .tb-2 .owl-prev {
+                    top: 177px !important;
                 }
 
                 .sbcu-carousel-item-title.has-small-font-size.text-center.pb-3.font-weight-semi-bold>a,
@@ -602,7 +549,12 @@ class SBCU_Front
     {
 
         // carousel id
-        global $sbcu_carousel_id;
+        global $sbcu_carousel_id, $post;
+
+        $per_slide_dt  = get_post_meta($post->ID, 'sbcu_per_slide_dt', true);
+        $per_slide_tb  = get_post_meta($post->ID, 'sbcu_per_slide_tb', true);
+        $per_slide_mb  = get_post_meta($post->ID, 'sbcu_per_slide_mb', true);
+        $per_slide_smb = get_post_meta($post->ID, 'sbcu_per_slide_smb', true);
 
         // js
     ?>
@@ -622,133 +574,37 @@ class SBCU_Front
                     autoplay: false,
                     responsive: {
                         0: {
-                            items: 1
+                            items: '<?php echo $per_slide_smb; ?>'
                         },
-                        600: {
-                            items: 2
+                        480: {
+                            items: '<?php echo $per_slide_mb; ?>'
                         },
-                        1000: {
-                            items: 2
+                        768: {
+                            items: '<?php echo $per_slide_tb; ?>'
+                        },
+                        1367: {
+                            items: '<?php echo $per_slide_dt; ?>'
                         }
                     }
                 });
 
-                // ------------------------------
-                // show variation options modal 
-                // and modal overlay on click
-                // ------------------------------
-                $('.sbcu-variation-modal-trigger').on('click', function(e) {
+                // --------------------
+                // quickview on click
+                // --------------------
+                $('.sbcu-quickview').click(function() {
 
-                    // prevent default
-                    e.preventDefault();
+                    var target = $(this).parents('.sbcu-carousel-item-inner');
 
+                    Riode.doLoading(target);
 
-                    // if width is more than 768px
-                    if ($(window).width() > 768) {
-                        $('html, body').animate({
-                            scrollTop: 0
-                        }, 'fast');
-                    }
+                    // remove .d-loading on ajax complete and remove and adjust some other bits and bobs
+                    $(document).ajaxComplete(function() {
+                        $('.d-loading').remove();
 
-                    // get product id data attribute
-                    var product_id = $(this).data('product_id');
-
-                    console.log('click');
-
-                    // show modal
-                    $('#sbcu-variation-modal-' + product_id).removeClass('d-none');
-
-                    // show close button
-                    $('#sbcu-variation-modal-' + product_id + ' .sbcu-close-modal').removeClass('d-none');
-
-                    // show modal overlay
-                    $('#sbcu-variation-modal-overlay-' + product_id).removeClass('d-none');
-
-                });
-
-                // hide variation options modal and modal overlay on click
-                $('.sbcu-variation-modal-overlay').on('click', function(e) {
-
-                    // prevent default
-                    e.preventDefault();
-
-                    // hide modal
-                    $('.sbcu-variation-modal').addClass('d-none');
-
-                    // hide modal overlay
-                    $('.sbcu-variation-modal-overlay').addClass('d-none');
-
-                });
-
-                // hide modal on .sbcu-close-modal click
-                $('.sbcu-close-modal').on('click', function(e) {
-
-                    // prevent default
-                    e.preventDefault();
-
-                    // hide modal
-                    $('.sbcu-variation-modal').addClass('d-none');
-
-                    // hide modal overlay
-                    $('.sbcu-variation-modal-overlay').addClass('d-none');
-
-                    // hide this
-                    $(this).addClass('d-none');
-
-                });
-
-                // ------------
-                // add to cart
-                // ------------
-                $(document).on('click', 'button.sbcu-carousel-item-add-to-cart-button', function(e) {
-
-                    // prevent default
-                    e.preventDefault();
-
-                    // button
-                    var button = $(this);
-
-                    // change button text to working...
-                    button.text('<?php _e('Working...', SBWC_CU_TDOM); ?>');
-
-                    // add to cart url
-                    var add_to_cart_url = $(this).data('href');
-
-                    // ajax url
-                    var ajax_url = '<?php echo admin_url('admin-ajax.php'); ?>';
-
-                    var data = {
-                        'action': 'sbcu_add_to_cart',
-                        '_ajax_nonce': '<?php echo wp_create_nonce('sbcu_add_to_cart'); ?>',
-                        'atc_url': add_to_cart_url,
-                    }
-
-                    $.post(ajax_url, data, function(response) {
-
-                        // if response.success is true, change button text to 'added to cart' and prepend checkmark, else display error message and reload page
-                        if (response.success) {
-
-                            // change button text
-                            button.text('<?php _e('Added to cart', SBWC_CU_TDOM); ?>');
-
-                            // prepend checkmark
-                            button.prepend('<i class="fas fa-check"></i>');
-
-                            // hide popup after 5 seconds
-                            setTimeout(() => {
-                                $('.sbcu-variation-modal, .sbcu-close-modal, .sbcu-variation-modal-overlay').addClass('d-none');
-                            }, 3000);
-
-                        } else {
-
-                            // display error message
-                            alert(response.data.message);
-
-                            // reload page
-                            location.reload();
-
-                        }
-
+                        setTimeout(() => {
+                            $(this).find('.mfp-content #vans-riode-buy-now-btn-variable, .mfp-content #pbs_bundle_atc, .mfp-content .social-icons').remove();
+                            $(this).find('.mfp-content .button.single_add_to_cart_button').addClass('sbcu-full-width');
+                        }, 1000);
                     });
 
                 });
@@ -781,67 +637,6 @@ class SBCU_Front
             });
         </script>
 <?php
-    }
-
-    /**
-     * Add to cart
-     * 
-     * @since 1.0.0
-     * 
-     * @return void
-     */
-    public static function sbcu_add_to_cart()
-    {
-
-        // check nonce
-        check_ajax_referer('sbcu_add_to_cart', 'nonce');
-
-        // debug
-        // wp_send_json($_POST);
-
-        // get add to cart url
-        $add_to_cart_url = $_POST['atc_url'];
-
-        // get url attributes
-        $url_attributes = parse_url($add_to_cart_url);
-
-        // holds product cart key
-        $product_cart_key = '';
-
-        // get query string
-        parse_str($url_attributes['query'], $query_string);
-
-        // if variation id in query string, add variation to cart
-        if (isset($query_string['variation_id'])) {
-
-            // add to cart
-            $product_cart_key = WC()->cart->add_to_cart($query_string['add-to-cart'], 1,  $query_string['variation_id']);
-        }
-
-        // if no variation id in query string, add product to cart
-        else {
-
-            // add to cart
-            $product_cart_key =  WC()->cart->add_to_cart($query_string['add-to-cart'], 1);
-        }
-
-        // if product cart key is not empty, send success, else send error
-        if (!empty($product_cart_key)) {
-
-            // send success
-            wp_send_json(array(
-                'success' => true,
-                'product_cart_key' => $product_cart_key,
-                'message' => 'Product added to cart.'
-            ));
-        } else {
-
-            // send error
-            wp_send_json(array(
-                'success' => false,
-                'message' => 'Error adding product to cart.'
-            ));
-        }
     }
 }
 
