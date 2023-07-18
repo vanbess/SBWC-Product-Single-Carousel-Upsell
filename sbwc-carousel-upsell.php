@@ -3,7 +3,7 @@
  * Plugin Name: SBWC Carousel Upsell
  * Plugin URI:
  * Description: Product specific upsells displayed in a carousel on the single product page.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: WC Bessinger
  * Author URI:
  * License: GPL2
