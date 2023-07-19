@@ -325,6 +325,32 @@ class SBCU_Front
                 width: 98% !important;
             }
 
+            .dt-3 .woocommerce-Price-amount {
+                font-size: 0.95em;
+            }
+
+            /* image slider inside modal */
+            .mfp-content .owl-prev:before {
+                content: '\e951';
+            }
+
+            .mfp-content .owl-next:before {
+                content: '\e950';
+            }
+
+            .mfp-content .owl-prev,
+            .mfp-content .owl-next {
+                top: 220px !important;
+            }
+
+            .mfp-content .owl-prev {
+                left: 10px !important;
+            }
+
+            .mfp-content .owl-next {
+                right: 10px !important;
+            }
+
             /* carousel stuff */
             .sbcu-carousel-item {
                 background: #fff;
