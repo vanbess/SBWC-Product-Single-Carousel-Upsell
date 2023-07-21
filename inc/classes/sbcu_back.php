@@ -92,6 +92,11 @@ class SBCU_Back
         if (isset($_POST['sbcu_products'])) {
             update_post_meta($post_id, 'sbcu_products', $_POST['sbcu_products']);
         }
+
+        // save link type
+        if (isset($_POST['sbcu_link_type'])) {
+            update_post_meta($post_id, 'sbcu_link_type', $_POST['sbcu_link_type']);
+        }
     }
 
     /**
@@ -107,6 +112,7 @@ class SBCU_Back
         $per_slide_tb  = get_post_meta($post->ID, 'sbcu_per_slide_tb', true);
         $per_slide_mb  = get_post_meta($post->ID, 'sbcu_per_slide_mb', true);
         $per_slide_smb = get_post_meta($post->ID, 'sbcu_per_slide_smb', true);
+        $link_type     = get_post_meta($post->ID, 'sbcu_link_type', true);
 
         // get carousel upsell products
         $product_ids = get_post_meta($post->ID, 'sbcu_products', true);
@@ -233,6 +239,21 @@ class SBCU_Back
                             });
                         });
                     </script>
+
+                </p>
+
+                <!-- link to product page or show quickview -->
+                <p class="form-field">
+
+                    <label for="sbcu_link_type" style="width: 200px;"><b><i><?php _e('Link to product page or show product quickview on button click?', SBWC_CU_TDOM); ?></i></b></label>
+
+                    <!-- info -->
+                    <span class="woocommerce-help-tip" data-tip="<?php _e('Select whether to redirect to product page or show quickview popup on button click.', SBWC_CU_TDOM); ?>"></span>
+
+                    <select name="sbcu_link_type" id="sbcu_link_type">
+                        <option value="quickview" <?= $link_type === 'quickview' ? 'selected' : '' ?>><?php _e('Show quickview popup', SBWC_CU_TDOM); ?></option>
+                        <option value="prodsingle" <?= $link_type === 'prodsingle' ? 'selected' : '' ?>><?php _e('Redirect to product page', SBWC_CU_TDOM); ?></option>
+                    </select>
 
                 </p>
 

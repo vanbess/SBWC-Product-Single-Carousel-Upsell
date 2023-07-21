@@ -96,6 +96,7 @@ class SBCU_Front
         $per_slide_tb  = get_post_meta($post->ID, 'sbcu_per_slide_tb', true);
         $per_slide_mb  = get_post_meta($post->ID, 'sbcu_per_slide_mb', true);
         $per_slide_smb = get_post_meta($post->ID, 'sbcu_per_slide_smb', true);
+        $link_type     = get_post_meta($post->ID, 'sbcu_link_type', true);
 
         // carousel id
         $sbcu_carousel_id = 'sbcu-carousel-' . uniqid();
@@ -128,7 +129,16 @@ class SBCU_Front
                 // product url
                 $product_url = $product->get_permalink();
 
-                $product_add_to_cart_button = '<button class="btn-product btn-quickview w-100 sbcu-quickview" data-product="' . $product_id . '" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</button>';
+                // if link type is 'productpage', redirect to product page, else show quickview
+                if ($link_type == 'prodsingle') {
+
+                    // product url
+                    $product_url = $product->get_permalink();
+
+                    $product_add_to_cart_button = '<a href="' . $product_url . '" class="btn-product w-100 sbcu-go-to-prod" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</a>';
+                } else {
+                    $product_add_to_cart_button = '<button class="btn-product btn-quickview w-100 sbcu-quickview" data-product="' . $product_id . '" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</button>';
+                }
 
                 // product html
             ?>
