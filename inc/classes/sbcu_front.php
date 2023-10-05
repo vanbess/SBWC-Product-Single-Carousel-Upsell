@@ -24,6 +24,27 @@ class SBCU_Front
 
         // add css and js
         add_action('wp_footer', array($this, 'add_css_js'), PHP_INT_MAX);
+
+        add_action('wp_enqueue_scripts', function () {
+
+            // if theme is flatsome
+            if (defined('UXTHEMES_API_URL') && is_product()) {
+
+                // owl carousel css
+                wp_enqueue_style('sbcu-owl-carousel', SBWC_CU_URI . 'lib/owl-carousel/assets/owl.carousel.min.css', [], '2.3.4', 'all');
+                wp_enqueue_style('sbcu-owl-carousel-theme', SBWC_CU_URI . 'lib/owl-carousel/assets/owl.theme.default.min.css', [], '2.3.4', 'all');
+
+                // flatsome css
+                wp_enqueue_style('sbcu-flatsome', $this->front_css_flatsome(), [], rand(1, 1000000), 'all');
+
+
+                wp_print_styles('sbcu-flatsome');
+
+
+                // owl carousel js
+                wp_enqueue_script('sbcu-owl-carousel-js', SBWC_CU_URI . 'lib/owl-carousel/owl.carousel.min.js', array('jquery'), '2.3.4', true);
+            }
+        });
     }
 
     /**
@@ -135,9 +156,9 @@ class SBCU_Front
                     // product url
                     $product_url = $product->get_permalink();
 
-                    $product_add_to_cart_button = '<a href="' . $product_url . '" class="btn-product w-100 sbcu-go-to-prod" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</a>';
+                    $product_add_to_cart_button = '<a href="' . $product_url . '" class="btn-product w-100 button secondary sbcu-go-to-prod" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</a>';
                 } else {
-                    $product_add_to_cart_button = '<button class="btn-product btn-quickview w-100 sbcu-quickview" data-product="' . $product_id . '" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</button>';
+                    $product_add_to_cart_button = '<button class="btn-product btn-quickview w-100 button secondary sbcu-quickview" data-product="' . $product_id . '" title="' . __('Choose Options', SBWC_CU_TDOM) . '">' . __('Choose Options', SBWC_CU_TDOM) . '</button>';
                 }
 
                 // product html
@@ -310,10 +331,10 @@ class SBCU_Front
         if (is_product()) {
 
             // css
-            wp_enqueue_style('sbcu-front-css', $this->front_css(), [], time(), 'all');
+            wp_enqueue_style('sbcu-front', $this->front_css_riode(), [], time(), 'all');
 
             // js
-            wp_enqueue_script('sbcu-front-js', $this->front_js(), array('jquery'), time(), true);
+            wp_enqueue_script('sbcu-front', $this->front_js(), array('jquery'), time(), true);
         }
     }
 
@@ -324,7 +345,7 @@ class SBCU_Front
      * 
      * @return string - css
      */
-    public function front_css()
+    public function front_css_riode()
     {
 
         // css
@@ -419,6 +440,9 @@ class SBCU_Front
 
             .dt-3 .sbcu-carousel-item-title.has-small-font-size.text-center.pb-3.font-weight-semi-bold {
                 font-size: 0.98em !important;
+                padding-top: 8px;
+                padding-bottom: 5px;
+                box-sizing: content-box;
             }
 
             /* responsiveness */
@@ -452,6 +476,10 @@ class SBCU_Front
                 .tb-2 .owl-next,
                 .tb-2 .owl-prev {
                     top: 146px !important;
+                }
+
+                a.btn-product.w-100.button.secondary.sbcu-go-to-prod {
+                    font-size: 14px;
                 }
             }
 
@@ -488,6 +516,10 @@ class SBCU_Front
                     width: 74vw;
                 }
 
+                a.btn-product.w-100.button.secondary.sbcu-go-to-prod {
+                    font-size: 13px;
+                }
+
             }
 
             /* 768px */
@@ -518,6 +550,10 @@ class SBCU_Front
                     width: 90vw;
                     top: 40vh;
                 }
+
+                a.btn-product.w-100.button.secondary.sbcu-go-to-prod {
+                    font-size: 11px;
+                }
             }
 
             /* 425px */
@@ -534,6 +570,16 @@ class SBCU_Front
 
                 .sbcu-variation-modal-variation {
                     flex: 0 0 100%;
+                }
+
+                a.btn-product.w-100.button.secondary.sbcu-go-to-prod {
+                    font-size: 16px;
+                }
+
+                .sbcu-carousel-item-title.has-small-font-size.text-center.pb-3.font-weight-semi-bold>a,
+                button.button.sbcu-variation-modal-trigger.w-100,
+                .sbcu-carousel-item-add-to-cart>a {
+                    font-size: 18px;
                 }
             }
 
@@ -575,6 +621,43 @@ class SBCU_Front
     }
 
     /**
+     * Front CSS for Flatsome theme
+     * 
+     * @since 1.0.2
+     */
+    public function front_css_flatsome()
+    {
+
+        // css
+    ?>
+
+        <style>
+            .no-js .owl-carousel,
+            .owl-carousel.owl-loaded {
+                display: inline-grid !important;
+            }
+
+            a.btn-product.w-100.button.secondary.sbcu-go-to-prod {
+                font-size: 11px;
+                margin-left: auto;
+                margin-right: auto;
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            h5#sbcu-title {
+                padding-top: 15px;
+                padding-left: 5px;
+            }
+
+            #tester {
+                font-size: large;
+            }
+        </style>
+
+    <?php  }
+
+    /**
      * Front JS
      * 
      * @since 1.0.0
@@ -595,16 +678,19 @@ class SBCU_Front
         // js
     ?>
         <script>
-            $ = jQuery.noConflict();
+            //$ = jQuery.noConflict();
 
-            $(document).ready(function() {
+            jQuery(document).ready(function($) {
+
+                console.log('sbcu front js loaded');
 
                 // ---------------
                 // setup carousel
                 // ---------------
+
                 $('#<?php echo $sbcu_carousel_id; ?>').owlCarousel({
                     loop: true,
-                    margin: 10,
+                    margin: 0,
                     nav: true,
                     dots: false,
                     autoplay: false,
@@ -624,9 +710,9 @@ class SBCU_Front
                     }
                 });
 
-                // --------------------
-                // quickview on click
-                // --------------------
+                // --------------------------------
+                // quickview on click (riode only)
+                // --------------------------------
                 $('.sbcu-quickview').click(function() {
 
                     var target = $(this).parents('.sbcu-carousel-item-inner');

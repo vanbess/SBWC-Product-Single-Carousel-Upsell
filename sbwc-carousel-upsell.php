@@ -2,8 +2,8 @@
 /**
  * Plugin Name: SBWC Carousel Upsell
  * Plugin URI:
- * Description: Product specific upsells displayed in a carousel on the single product page. Built for Riode theme specifically and uses product Quickview to handle add to cart functionality.
- * Version: 1.0.1
+ * Description: Product specific upsells displayed in a carousel on the single product page. Supports Riode and Flatsome themes.
+ * Version: 1.0.2
  * Author: WC Bessinger
  * Author URI:
  * License: GPL2
@@ -27,15 +27,13 @@ add_action('plugins_loaded', function() {
     define('SBWC_CU_TDOM', 'sbwc-carousel-upsell');
 
     // version constant
-    define('SBWC_CU_VERSION', '1.0.0');
+    define('SBWC_CU_VERSION', '1.0.2');
 
     // back class
     require_once(SBWC_CU_PATH . 'inc/classes/sbcu_back.php');
 
     // front class
     require_once(SBWC_CU_PATH . 'inc/classes/sbcu_front.php');
-    
-
 
 });
 

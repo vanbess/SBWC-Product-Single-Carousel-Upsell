@@ -242,20 +242,32 @@ class SBCU_Back
 
                 </p>
 
-                <!-- link to product page or show quickview -->
-                <p class="form-field">
+                <!-- only show below option if theme is not Flatsome -->
+                <?php if (!defined('UXTHEMES_API_URL')) : ?>
 
-                    <label for="sbcu_link_type" style="width: 200px;"><b><i><?php _e('Link to product page or show product quickview on button click?', SBWC_CU_TDOM); ?></i></b></label>
+                    <!-- link to product page or show quickview -->
+                    <p class="form-field">
 
-                    <!-- info -->
-                    <span class="woocommerce-help-tip" data-tip="<?php _e('Select whether to redirect to product page or show quickview popup on button click.', SBWC_CU_TDOM); ?>"></span>
+                        <label for="sbcu_link_type" style="width: 200px;"><b><i><?php _e('Link to product page or show product quickview on button click?', SBWC_CU_TDOM); ?></i></b></label>
 
-                    <select name="sbcu_link_type" id="sbcu_link_type">
-                        <option value="quickview" <?= $link_type === 'quickview' ? 'selected' : '' ?>><?php _e('Show quickview popup', SBWC_CU_TDOM); ?></option>
-                        <option value="prodsingle" <?= $link_type === 'prodsingle' ? 'selected' : '' ?>><?php _e('Redirect to product page', SBWC_CU_TDOM); ?></option>
-                    </select>
+                        <!-- info -->
+                        <span class="woocommerce-help-tip" data-tip="<?php _e('Select whether to redirect to product page or show quickview popup on button click.', SBWC_CU_TDOM); ?>"></span>
 
-                </p>
+                        <select name="sbcu_link_type" id="sbcu_link_type">
+                            <option value="quickview" <?= $link_type === 'quickview' ? 'selected' : '' ?>><?php _e('Show quickview popup', SBWC_CU_TDOM); ?></option>
+                            <option value="prodsingle" <?= $link_type === 'prodsingle' ? 'selected' : '' ?>><?php _e('Redirect to product page', SBWC_CU_TDOM); ?></option>
+                        </select>
+
+                    </p>
+
+                    <!-- if theme is Flatsome, can only link to product -->
+                <?php else : ?>
+
+                    <!-- hidden input -->
+                    <input type="hidden" name="sbcu_link_type" id="sbcu_link_type" value="prodsingle">
+
+                <?php endif; ?>
+
 
             </div>
 
